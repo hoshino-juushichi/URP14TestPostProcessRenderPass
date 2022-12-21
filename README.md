@@ -1,2 +1,2 @@
-# URP14TestPostProcessRenderPass
-URP14TestPostProcessRenderPass
+# URP14PostProcessRenderPassTest
+URP14PostProcessRenderPassTest
