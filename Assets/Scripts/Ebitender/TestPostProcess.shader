@@ -7,6 +7,8 @@
 	{
 		Tags { "RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline" }
 
+		LOD 100
+		ZWrite Off Cull Off
 		Pass
 		{
 			HLSLPROGRAM
@@ -56,6 +58,27 @@
 			{
 				float3 normal = SampleSceneNormals(input.texcoord);
 	            half4 color = half4(normal.xyz, 1);
+				return color;
+			}
+			ENDHLSL
+		}
+
+				Pass
+		{
+			HLSLPROGRAM
+
+			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+			#include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
+
+			#pragma vertex Vert
+			#pragma fragment frag
+
+			TEXTURE2D_X(_CameraOpaqueTexture);
+			SAMPLER(sampler_CameraOpaqueTexture);
+
+			half4 frag(Varyings input) : SV_Target
+			{
+				float4 color = SAMPLE_TEXTURE2D_X(_CameraOpaqueTexture, sampler_CameraOpaqueTexture, input.texcoord);
 				return color;
 			}
 			ENDHLSL

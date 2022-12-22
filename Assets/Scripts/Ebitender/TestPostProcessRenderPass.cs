@@ -30,35 +30,34 @@ namespace Ebitender
 			_mode = mode;
 		}
 
-		public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
-		{
-			switch (_mode)
-			{
-				case TestPostProcessRenderFeature.ModeType.ShowDepth:
-					ConfigureInput(ScriptableRenderPassInput.Depth);
-					break;
-				case TestPostProcessRenderFeature.ModeType.ShowNormal:
-					ConfigureInput(ScriptableRenderPassInput.Normal);
-					break;
-			}
-			ConfigureTarget(_cameraColorTarget);
-		}
-
-		public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
+        public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
-		}
+            switch (_mode)
+            {
+                case TestPostProcessRenderFeature.ModeType.Depth:
+                    ConfigureInput(ScriptableRenderPassInput.Depth);
+                    break;
+                case TestPostProcessRenderFeature.ModeType.Normal:
+                    ConfigureInput(ScriptableRenderPassInput.Normal);
+                    break;
+                case TestPostProcessRenderFeature.ModeType.Raw:
+                    ConfigureInput(ScriptableRenderPassInput.Color);
+                    break;
+            }
+            ConfigureTarget(_cameraColorTarget);
+        }
 
-		public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
+        public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
             if (_material == null || _cameraColorTarget == null)
             {
                 return;
             }
 
-			var cmd = CommandBufferPool.Get(ProfilerTag);
+            var cmd = CommandBufferPool.Get(ProfilerTag);
             using (new ProfilingScope(cmd, _profilingSampler))
             {
-				Blitter.BlitCameraTexture(cmd, _cameraColorTarget, _cameraColorTarget, _material, GetPassIndex());
+                Blitter.BlitCameraTexture(cmd, _cameraColorTarget, _cameraColorTarget, _material, GetPassIndex());
 			}
             context.ExecuteCommandBuffer(cmd);
             cmd.Clear();
@@ -69,12 +68,14 @@ namespace Ebitender
 		{
 			switch (_mode)
 			{
-				case TestPostProcessRenderFeature.ModeType.ShowDepth:
+				case TestPostProcessRenderFeature.ModeType.Depth:
 					return 0;
-				case TestPostProcessRenderFeature.ModeType.ShowNormal:
+				case TestPostProcessRenderFeature.ModeType.Normal:
 					return 1;
-			}
-			return 0;
+                case TestPostProcessRenderFeature.ModeType.Raw:
+                    return 2;
+            }
+            return 0;
 		}
 	}
 }
